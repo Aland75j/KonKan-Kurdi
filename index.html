@@ -3,103 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>کۆنکان - شای یارییەکان</title>
+    <title>کۆنکان پروو - کۆمەڵگەی یاری کەران</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;900&display=swap');
         
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            overflow: hidden; background-color: #0b0c10;
+            overflow: hidden; background-color: #0c0f12;
             font-family: 'Noto Sans Arabic', sans-serif;
             user-select: none; -webkit-user-select: none;
         }
 
-        /* Force Landscape Layout Container on Screen Ratio Multipliers */
-        #orientation-wrapper {
-            width: 100vw; height: 100vh;
-            position: absolute; top: 0; left: 0;
-            transition: all 0.3s ease-in-out;
+        /* باکگراوندی ڕیالستی مێزی یاری بە کاشی کۆنکان */
+        .lobby-bg {
+            background: linear-gradient(to bottom, rgba(12, 15, 18, 0.85), rgba(6, 9, 11, 0.95)), 
+                        url('https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=1200') center/cover;
         }
 
-        /* Smart CSS Landscape Virtualizer Forcing 90deg view shifts */
+        /* شووشەی لێڵ زێڕین - Glassmorphism Card */
+        .premium-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .premium-card:hover {
+            border-color: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.05);
+            transform: translateY(-4px);
+        }
+
+        /* قوفڵکردنی شاشە بۆ لاندسکەیپ */
+        #main-wrapper {
+            width: 100vw; height: 100vh; position: absolute; top: 0; left: 0;
+        }
+
         @media (orientation: portrait) {
-            #orientation-wrapper {
+            #main-wrapper {
                 width: 100vh; height: 100vw;
-                transform: rotate(90deg);
-                transform-origin: top left;
+                transform: rotate(90deg); transform-origin: top left;
                 position: absolute; top: 0; left: 100%;
             }
         }
-
-        .shake-rack { animation: hardwareShiver 0.15s linear infinite; }
-        @keyframes hardwareShiver {
-            0% { transform: translate3d(-6px, 0, 0); }
-            50% { transform: translate3d(6px, 0, 0); }
-            100% { transform: translate3d(0, 0, 0); }
-        }
-        .glass-panel {
-            background: rgba(31, 40, 51, 0.65);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(197, 160, 89, 0.2);
-        }
     </style>
 </head>
-<body class="relative bg-[#0b0c10]">
+<body class="relative w-full h-full">
 
-    <!-- START INTERACTION/BLACK SCREEN BYPASS TAP OVERLAY -->
-    <div id="tap-to-start" class="fixed inset-0 bg-[#0b0c10] z-[99999] flex flex-col justify-center items-center cursor-pointer text-center p-4">
-        <div class="w-20 h-20 bg-gradient-to-tr from-[#c5a059] to-yellow-600 rounded-full flex items-center justify-center text-white text-3xl animate-pulse shadow-lg shadow-[#c5a059]/20 mb-4">▶</div>
-        <h1 class="text-2xl font-black text-[#c5a059] mb-1">کۆنکان - شای یارییەکان</h1>
-        <p class="text-gray-400 text-xs">بۆ دەستپێکردنی بڕینی سینەمایی یارییەکە، کلیک بکە 👆</p>
-    </div>
+    <div id="main-wrapper" class="lobby-bg relative overflow-hidden flex flex-col justify-between p-3 select-none">
+        
+        <div class="w-full flex justify-between items-center z-20">
+            <div class="flex items-center gap-2 bg-black/40 rounded-2xl p-1.5 pl-4 border border-white/5">
+                <div class="w-9 h-9 rounded-full border-2 border-amber-500 overflow-hidden bg-slate-800">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=SURAQ" class="w-full h-full">
+                </div>
+                <div>
+                    <div class="text-xs font-black text-white">SURA-Q</div>
+                    <div class="text-[9px] text-amber-400 font-bold">ئاست ٥ • وەستا</div>
+                </div>
+            </div>
 
-    <!-- VIRTUAL ROTATION MATRIX WRAPPER -->
-    <div id="orientation-wrapper" class="relative overflow-hidden">
-        <canvas id="game-canvas" class="absolute inset-0 w-full h-full z-0"></canvas>
+            <div class="flex gap-2">
+                <div class="flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-xl border border-white/5 text-xs text-white">
+                    <span class="text-amber-400">🪙</span>
+                    <span class="font-bold">١٨,٠٠٠</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-xl border border-white/5 text-xs text-white">
+                    <span class="text-cyan-400">💎</span>
+                    <span class="font-bold">٥٤</span>
+                </div>
+            </div>
 
-        <div id="ui-layer" class="absolute inset-0 w-full h-full z-10 pointer-events-none flex flex-col justify-between p-4 hidden">
-            <!-- HUD TOP -->
-            <div id="hud-top" class="w-full flex justify-between items-center pointer-events-auto">
-                <div class="glass-panel rounded-xl p-2 flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full border border-[#c5a059] overflow-hidden bg-gray-800">
-                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Spectre" class="w-full h-full">
+            <button onclick="LobbyManager.openModal('settings-modal')" class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white text-sm hover:bg-white/10 active:scale-95 transition-all cursor-pointer">⚙️</button>
+        </div>
+
+        <div id="lobby-modes" class="w-full grid grid-cols-4 gap-3 px-4 my-auto z-20 transition-all duration-300">
+            
+            <div onclick="LobbyManager.selectMode('badinan')" class="premium-card rounded-2xl p-4 flex flex-col justify-between items-center text-center h-48 cursor-pointer transition-all duration-300 group">
+                <div class="text-4xl group-hover:scale-110 transition-transform">🃏</div>
+                <div>
+                    <h3 class="text-sm font-black text-white">بادینان کلاسیک</h3>
+                    <p class="text-[10px] text-slate-400 mt-1">یاسای بادینان، بە سەرەق دەکرێت.</p>
+                </div>
+                <button class="bg-cyan-600/20 text-cyan-400 text-[11px] font-bold px-4 py-1.5 rounded-xl w-full border border-cyan-500/20">یاری کردن</button>
+            </div>
+
+            <div onclick="LobbyManager.selectMode('suleimani')" class="premium-card rounded-2xl p-4 flex flex-col justify-between items-center text-center h-48 cursor-pointer transition-all duration-300 group">
+                <div class="text-4xl group-hover:scale-110 transition-transform">🏢</div>
+                <div>
+                    <h3 class="text-sm font-black text-white">سلێمانی کلاسیک</h3>
+                    <p class="text-[10px] text-slate-400 mt-1">یاسای کۆنی سلێمانی دێرین.</p>
+                </div>
+                <button class="bg-purple-600/20 text-purple-400 text-[11px] font-bold px-4 py-1.5 rounded-xl w-full border border-purple-500/20">یاری کردن</button>
+            </div>
+
+            <div onclick="LobbyManager.openModal('leaderboard-modal')" class="premium-card rounded-2xl p-4 flex flex-col justify-between items-center text-center h-48 cursor-pointer transition-all duration-300 group">
+                <div class="text-4xl group-hover:scale-110 transition-transform">👑</div>
+                <div>
+                    <h3 class="text-sm font-black text-white">ڕیزبەندی (شارەکان)</h3>
+                    <p class="text-[10px] text-slate-400 mt-1">یاری بکە بۆ پلەی جیهانی.</p>
+                </div>
+                <button class="bg-amber-600/20 text-amber-400 text-[11px] font-bold px-4 py-1.5 rounded-xl w-full border border-amber-500/20">شارەکان</button>
+            </div>
+
+            <div onclick="LobbyManager.selectMode('fast')" class="premium-card rounded-2xl p-4 flex flex-col justify-between items-center text-center h-48 bg-gradient-to-b from-red-950/20 to-transparent border-red-500/20 cursor-pointer transition-all duration-300 group">
+                <div class="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-white text-lg shadow-lg shadow-red-600/30 group-hover:scale-105 transition-transform">▶</div>
+                <div>
+                    <h3 class="text-sm font-black text-white">یاری خێرا</h3>
+                    <p class="text-[10px] text-slate-400 mt-1">یاسای کلاسیک، یاریزانی خێرا.</p>
+                </div>
+                <button class="bg-red-600 text-white text-[11px] font-black px-4 py-1.5 rounded-xl w-full shadow-md">یاری خێرا</button>
+            </div>
+
+        </div>
+
+        <div class="w-full flex justify-between items-center px-4 z-20">
+            <div class="flex gap-3">
+                <button onclick="LobbyManager.openModal('tasks-modal')" class="flex flex-col items-center bg-black/30 p-2 rounded-xl border border-white/5 w-14 cursor-pointer hover:bg-white/5">
+                    <span class="text-base">📋</span>
+                    <span class="text-[9px] text-slate-300 font-bold mt-0.5">ئەرکەکان</span>
+                </button>
+                <button onclick="LobbyManager.openModal('spin-modal')" class="flex flex-col items-center bg-black/30 p-2 rounded-xl border border-white/5 w-14 cursor-pointer hover:bg-white/5">
+                    <span class="text-base">🎡</span>
+                    <span class="text-[9px] text-slate-300 font-bold mt-0.5">بسوڕێنە</span>
+                </button>
+            </div>
+            
+            <div class="text-[10px] text-slate-500 font-bold">گەشەپێدراوە لەلایەن مۆحەمەد عەبدوڵا © 2026</div>
+        </div>
+
+        <div id="tasks-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300 p-4">
+            <div class="premium-card bg-slate-950/95 rounded-2xl w-full max-w-md p-5 relative border border-white/10">
+                <button onclick="LobbyManager.closeModal('tasks-modal')" class="absolute top-4 left-4 text-slate-400 hover:text-white text-sm">✕</button>
+                <h2 class="text-base font-black text-amber-400 mb-4 flex items-center gap-2">📋 ئەرکی ڕۆژانە</h2>
+                <div class="flex flex-col gap-3">
+                    <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                        <div>
+                            <div class="text-xs font-bold text-white">ئەمڕۆ یەک یاری بکە</div>
+                            <div class="text-[10px] text-amber-500 font-bold mt-1">🪙 +٢,٠٠٠</div>
+                        </div>
+                        <span class="text-xs text-slate-500 font-bold">٠/١</span>
                     </div>
-                    <div>
-                        <div class="text-xs font-bold text-white">مۆحەمەد عەبدوڵا <span class="text-[10px] bg-[#c5a059] text-black px-1 rounded">وەستا</span></div>
-                        <div class="w-20 bg-gray-900 h-1.5 rounded-full mt-1"><div class="bg-blue-500 h-full w-[75%]"></div></div>
+                    <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                        <div>
+                            <div class="text-xs font-bold text-white">شاری ٥٠ هەزاری ببەوە</div>
+                            <div class="text-[10px] text-cyan-400 font-bold mt-1">💎 +١٠</div>
+                        </div>
+                        <span class="text-xs text-slate-500 font-bold">٠/١</span>
                     </div>
-                </div>
-                <div class="flex gap-2">
-                    <div class="glass-panel px-3 py-1 rounded-full text-white text-xs font-bold"><span id="coin-count">🪙 ٠</span></div>
-                </div>
-            </div>
-
-            <!-- HUD CENTER -->
-            <div id="hud-center" class="w-full flex justify-center items-center pointer-events-auto my-auto">
-                <div id="lobby-menu" class="flex gap-4">
-                    <button onclick="GameEngine.startMatch()" class="glass-panel px-6 py-3 rounded-xl text-[#c5a059] font-black text-sm hover:scale-105 active:scale-95 transition-all cursor-pointer">▶ دەستپێکردنی یاری کۆنکان</button>
-                </div>
-            </div>
-
-            <!-- ILLEGAL ACTION POPUP NOTIFICATION -->
-            <div id="punishment-banner" class="absolute top-1/4 left-1/2 transform -translate-x-1/2 glass-panel bg-black/90 text-center px-6 py-3 rounded-xl opacity-0 transition-all duration-300 z-50 max-w-xs pointer-events-none">
-                <span class="text-2xl mb-1 block" id="warning-icon">⚠️</span>
-                <p class="text-xs text-red-400 font-bold" id="warning-text"></p>
-            </div>
-
-            <!-- HUD BOTTOM -->
-            <div id="hud-bottom" class="w-full flex justify-between items-end">
-                <button onclick="GameEngine.toggleChatWheel()" class="glass-panel p-2 rounded-full text-white pointer-events-auto cursor-pointer">💬</button>
-                <div id="chat-wheel" class="absolute bottom-16 right-4 glass-panel p-2 rounded-xl hidden w-56 flex flex-col gap-1 z-30 pointer-events-auto">
-                    <button onclick="GameEngine.sendPhrase(0)" class="w-full text-right p-1.5 text-white text-[11px] rounded hover:bg-white/10">"دەی خێراکە براڕۆ، سەعات بوو!"</button>
-                    <button onclick="GameEngine.sendPhrase(1)" class="w-full text-right p-1.5 text-white text-[11px] rounded hover:bg-white/10">"دەستت قوفڵ بووە بە دیاریا؟ 🤫"</button>
-                </div>
-                <div id="sorting-controls" class="flex gap-2 pointer-events-auto hidden">
-                    <button onclick="GameEngine.sortHand('color')" class="glass-panel px-3 py-1.5 text-[11px] text-white rounded-lg">ڕێکخستن بەپێی ڕەنگ</button>
                 </div>
             </div>
         </div>
+
+        <div id="spin-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300 p-4">
+            <div class="premium-card bg-slate-950/95 rounded-2xl w-full max-w-sm p-6 text-center relative border border-white/10">
+                <button onclick="LobbyManager.closeModal('spin-modal')" class="absolute top-4 left-4 text-slate-400 hover:text-white text-sm">✕</button>
+                <h2 class="text-base font-black text-amber-400 mb-4">🎡 چەرخی بەخت</h2>
+                <div class="w-40 h-40 rounded-full border-4 border-amber-500 mx-auto my-4 flex items-center justify-center bg-gradient-to-tr from-amber-600 to-yellow-400 text-slate-950 font-black text-sm shadow-xl shadow-amber-500/20 animate-spin" style="animation-duration: 20s;">
+                    کۆنکان زێڕین
+                </div>
+                <button onclick="alert('خەڵاتەکەت وەرگرت!')" class="bg-amber-500 text-slate-950 px-6 py-2 rounded-xl font-black text-xs shadow-lg shadow-amber-500/20 cursor-pointer w-full mt-2">بسوڕێنە</button>
+            </div>
+        </div>
+
+        <div id="leaderboard-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300 p-4">
+            <div class="premium-card bg-slate-950/95 rounded-2xl w-full max-w-md p-5 relative border border-white/10">
+                <button onclick="LobbyManager.closeModal('leaderboard-modal')" class="absolute top-4 left-4 text-slate-400 hover:text-white text-sm">✕</button>
+                <h2 class="text-base font-black text-amber-400 mb-3">🏆 پاڵەوانەکان (ڕیزبەندی جیهانی)</h2>
+                <div class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
+                    <div class="flex justify-between items-center bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20 text-xs text-white">
+                        <span class="font-bold">١. shexchapuk11 👑</span>
+                        <span class="text-amber-400 font-bold">٣,٤٦٥ 🏆</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-white/5 p-2.5 rounded-xl text-xs text-white">
+                        <span>٢. DiNo</span>
+                        <span class="text-slate-400 font-bold">٣,٣٦٠ 🏆</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-white/5 p-2.5 rounded-xl text-xs text-white">
+                        <span>٣. Mustafa_Xailany20</span>
+                        <span class="text-slate-400 font-bold">٢,٩٤٣ 🏆</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <canvas id="game-canvas" class="absolute inset-0 w-full h-full z-0 hidden opacity-0 transition-opacity duration-500"></canvas>
     </div>
 
     <script src="game.js"></script>
