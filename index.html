@@ -4,189 +4,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>کۆنکان - شای یارییەکان</title>
-    <!-- Tailwind CSS for rapid glassmorphic UI layout -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&display=swap');
         
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #0b0c10;
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background-color: #0b0c10;
             font-family: 'Noto Sans Arabic', sans-serif;
-            user-select: none;
-            -webkit-user-select: none;
+            user-select: none; -webkit-user-select: none;
         }
 
-        /* Portrait Orientation Warning Guard */
-        #orientation-guard {
-            display: flex;
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: radial-gradient(circle, #1f2833 0%, #0b0c10 100%);
-            z-index: 99999;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: #ffffff;
-            padding: 20px;
+        /* Force Landscape Layout Container on Screen Ratio Multipliers */
+        #orientation-wrapper {
+            width: 100vw; height: 100vh;
+            position: absolute; top: 0; left: 0;
+            transition: all 0.3s ease-in-out;
         }
 
-        @media (orientation: landscape) {
-            #orientation-guard {
-                display: none !important;
+        /* Smart CSS Landscape Virtualizer Forcing 90deg view shifts */
+        @media (orientation: portrait) {
+            #orientation-wrapper {
+                width: 100vh; height: 100vw;
+                transform: rotate(90deg);
+                transform-origin: top left;
+                position: absolute; top: 0; left: 100%;
             }
         }
 
-        /* Phone Rotation Micro-Animation */
-        .phone-icon {
-            width: 80px;
-            height: 140px;
-            border: 4px solid #c5a059;
-            border-radius: 12px;
-            position: relative;
-            animation: rotateLandscape 2.5s ease-in-out infinite;
-        }
-        .phone-icon::after {
-            content: '';
-            position: absolute;
-            bottom: 10px; left: 50%;
-            transform: translateX(-50%);
-            width: 12px; height: 12px;
-            border-radius: 50%;
-            background-color: #c5a059;
-        }
-
-        @keyframes rotateLandscape {
-            0% { transform: rotate(0deg); }
-            50% { transform: rotate(-90deg); }
-            100% { transform: rotate(-90deg); }
-        }
-
-        /* GPU Accelerated Screen Shake for Illegal Moves */
-        .shake-rack {
-            animation: hardwareShiver 0.15s linear infinite;
-        }
-
+        .shake-rack { animation: hardwareShiver 0.15s linear infinite; }
         @keyframes hardwareShiver {
             0% { transform: translate3d(-6px, 0, 0); }
-            25% { transform: translate3d(6px, 0, 0); }
-            50% { transform: translate3d(-4px, 0, 0); }
-            75% { transform: translate3d(4px, 0, 0); }
+            50% { transform: translate3d(6px, 0, 0); }
             100% { transform: translate3d(0, 0, 0); }
         }
-
-        /* Custom Scrollbars / Utility Hidden States */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
         .glass-panel {
             background: rgba(31, 40, 51, 0.65);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(197, 160, 89, 0.2);
         }
     </style>
 </head>
-<body class="relative w-full h-full">
+<body class="relative bg-[#0b0c10]">
 
-    <!-- 1. ORIENTATION GUARD -->
-    <div id="orientation-guard" class="flex">
-        <div class="phone-icon mb-6"></div>
-        <h1 class="text-2xl font-bold text-[#c5a059] mb-2">تکایە مۆبایلەکەت بسوڕێنەوە!</h1>
-        <p class="text-gray-400 text-sm max-w-sm">بۆ ئەوەی بچیتە ناو جیهانی کۆنکان، پێویستە ئامێرەکەت بە شێوازی ئاسۆیی (Landscape) دابنێیت. 📱🔄</p>
+    <!-- START INTERACTION/BLACK SCREEN BYPASS TAP OVERLAY -->
+    <div id="tap-to-start" class="fixed inset-0 bg-[#0b0c10] z-[99999] flex flex-col justify-center items-center cursor-pointer text-center p-4">
+        <div class="w-20 h-20 bg-gradient-to-tr from-[#c5a059] to-yellow-600 rounded-full flex items-center justify-center text-white text-3xl animate-pulse shadow-lg shadow-[#c5a059]/20 mb-4">▶</div>
+        <h1 class="text-2xl font-black text-[#c5a059] mb-1">کۆنکان - شای یارییەکان</h1>
+        <p class="text-gray-400 text-xs">بۆ دەستپێکردنی بڕینی سینەمایی یارییەکە، کلیک بکە 👆</p>
     </div>
 
-    <!-- 2. GAME LOBBY & GAMEPLAY CANVAS CONTAINER -->
-    <div id="game-container" class="w-full h-full relative hidden bg-[#0b0c10]">
-        <!-- WebGL Render Target Canvas -->
+    <!-- VIRTUAL ROTATION MATRIX WRAPPER -->
+    <div id="orientation-wrapper" class="relative overflow-hidden">
         <canvas id="game-canvas" class="absolute inset-0 w-full h-full z-0"></canvas>
 
-        <!-- UI Overlay Matrix Layer -->
-        <div id="ui-layer" class="absolute inset-0 w-full h-full z-10 pointer-events-none flex flex-col justify-between p-4">
-            
-            <!-- TOP BAR (HUD) -->
-            <div id="hud-top" class="w-full flex justify-between items-center opacity-0 pointer-events-auto transition-opacity duration-500">
-                <!-- Profile Block -->
+        <div id="ui-layer" class="absolute inset-0 w-full h-full z-10 pointer-events-none flex flex-col justify-between p-4 hidden">
+            <!-- HUD TOP -->
+            <div id="hud-top" class="w-full flex justify-between items-center pointer-events-auto">
                 <div class="glass-panel rounded-xl p-2 flex items-center gap-3">
-                    <div class="relative w-12 h-12 rounded-full border-2 border-[#c5a059] overflow-hidden bg-gray-800">
-                        <img id="player-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Spectre" alt="Avatar" class="w-full h-full">
+                    <div class="w-10 h-10 rounded-full border border-[#c5a059] overflow-hidden bg-gray-800">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Spectre" class="w-full h-full">
                     </div>
                     <div>
-                        <div class="text-sm font-bold text-white flex items-center gap-1">
-                            <span>مۆحەمەد عەبدوڵا</span>
-                            <span class="text-xs bg-[#c5a059] text-black px-1.5 rounded font-black">شای کۆنکان</span>
-                        </div>
-                        <div class="w-28 bg-gray-900 h-2 rounded-full mt-1 overflow-hidden">
-                            <div class="bg-gradient-to-r from-blue-500 to-cyan-400 h-full w-[75%]"></div>
-                        </div>
+                        <div class="text-xs font-bold text-white">مۆحەمەد عەبدوڵا <span class="text-[10px] bg-[#c5a059] text-black px-1 rounded">وەستا</span></div>
+                        <div class="w-20 bg-gray-900 h-1.5 rounded-full mt-1"><div class="bg-blue-500 h-full w-[75%]"></div></div>
                     </div>
                 </div>
-
-                <!-- Currency Panel -->
-                <div class="flex gap-4">
-                    <div class="glass-panel px-4 py-1.5 rounded-full flex items-center gap-2 text-white text-sm font-bold">
-                        <span class="text-yellow-400">🪙</span>
-                        <span id="coin-count">25,500</span>
-                    </div>
-                    <div class="glass-panel px-4 py-1.5 rounded-full flex items-center gap-2 text-white text-sm font-bold">
-                        <span class="text-cyan-400">💎</span>
-                        <span id="gem-count">120</span>
-                    </div>
+                <div class="flex gap-2">
+                    <div class="glass-panel px-3 py-1 rounded-full text-white text-xs font-bold"><span id="coin-count">🪙 ٠</span></div>
                 </div>
             </div>
 
-            <!-- CENTER WORKSPACE (LOBBY CARDS OR DISCARD POOL) -->
-            <div id="hud-center" class="w-full flex justify-center items-center gap-6 opacity-0 pointer-events-auto transition-opacity duration-500 my-auto">
-                <!-- Lobby Selection Panels (Rendered programmatically or toggled via JS) -->
-                <div id="lobby-menu" class="flex gap-6">
-                    <button onclick="GameEngine.startMatch('quick')" class="glass-panel p-6 rounded-2xl w-48 text-center text-white hover:scale-105 active:scale-95 transition-all cursor-pointer flex flex-col items-center group">
-                        <span class="text-4xl mb-3 group-hover:animate-bounce">⚔️</span>
-                        <span class="text-lg font-bold text-[#c5a059]">یاری خێرا</span>
-                        <span class="text-xs text-gray-400 mt-1">1v1 خێرا و بەهێز</span>
-                    </button>
-                    <button onclick="GameEngine.startMatch('diwan')" class="glass-panel p-6 rounded-2xl w-48 text-center text-white hover:scale-105 active:scale-95 transition-all cursor-pointer flex flex-col items-center group">
-                        <span class="text-4xl mb-3 group-hover:animate-bounce">👑</span>
-                        <span class="text-lg font-bold text-[#c5a059]">دیوەخانی یاریزانان</span>
-                        <span class="text-xs text-gray-400 mt-1">٤ یاریزانی تەواو</span>
-                    </button>
+            <!-- HUD CENTER -->
+            <div id="hud-center" class="w-full flex justify-center items-center pointer-events-auto my-auto">
+                <div id="lobby-menu" class="flex gap-4">
+                    <button onclick="GameEngine.startMatch()" class="glass-panel px-6 py-3 rounded-xl text-[#c5a059] font-black text-sm hover:scale-105 active:scale-95 transition-all cursor-pointer">▶ دەستپێکردنی یاری کۆنکان</button>
                 </div>
             </div>
 
-            <!-- SATELLITE WARNING MODAL POPUP CONTAINER -->
-            <div id="punishment-banner" class="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 glass-panel border-red-600/50 bg-black/80 rounded-2xl px-8 py-4 text-center pointer-events-none opacity-0 scale-75 transition-all duration-200 z-50">
-                <span class="text-3xl mb-1 block" id="warning-icon">🚨</span>
-                <h2 class="text-xl font-black text-red-500" id="warning-text">جوڵەکە نادروستە!</h2>
+            <!-- ILLEGAL ACTION POPUP NOTIFICATION -->
+            <div id="punishment-banner" class="absolute top-1/4 left-1/2 transform -translate-x-1/2 glass-panel bg-black/90 text-center px-6 py-3 rounded-xl opacity-0 transition-all duration-300 z-50 max-w-xs pointer-events-none">
+                <span class="text-2xl mb-1 block" id="warning-icon">⚠️</span>
+                <p class="text-xs text-red-400 font-bold" id="warning-text"></p>
             </div>
 
-            <!-- BOTTOM WORKSPACE (TILE RACK PLAYER CONTROLS) -->
-            <div id="hud-bottom" class="w-full flex justify-between items-end opacity-0 transition-opacity duration-500">
-                <!-- Localized Chat Trigger Module -->
-                <div class="pointer-events-auto relative">
-                    <button onclick="GameEngine.toggleChatWheel()" class="glass-panel p-3 rounded-full text-white cursor-pointer hover:bg-slate-800">💬</button>
-                    <!-- Chat Selection Wheel Dropup -->
-                    <div id="chat-wheel" class="absolute bottom-14 right-0 glass-panel p-2 rounded-xl hidden w-64 flex-col gap-1 z-30">
-                        <button onclick="GameEngine.sendPhrase(0)" class="w-full text-right p-2 text-white text-xs rounded hover:bg-white/10">"دەی خێراکە براڕۆ، سەعات بوو!"</button>
-                        <button onclick="GameEngine.sendPhrase(1)" class="w-full text-right p-2 text-white text-xs rounded hover:bg-white/10">"دەستت قوفڵ بووە بە دیاریا؟ 🤫"</button>
-                        <button onclick="GameEngine.sendPhrase(2)" class="w-full text-right p-2 text-white text-xs rounded hover:bg-white/10">"بەخوا جۆکەرەکەم لایە، خۆت تەسلیم کە!"</button>
-                        <button onclick="GameEngine.sendPhrase(3)" class="w-full text-right p-2 text-white text-xs rounded hover:bg-white/10">"ئەم دەستە کابرایەک دۆڕاوی ڕەقە..."</button>
-                    </div>
+            <!-- HUD BOTTOM -->
+            <div id="hud-bottom" class="w-full flex justify-between items-end">
+                <button onclick="GameEngine.toggleChatWheel()" class="glass-panel p-2 rounded-full text-white pointer-events-auto cursor-pointer">💬</button>
+                <div id="chat-wheel" class="absolute bottom-16 right-4 glass-panel p-2 rounded-xl hidden w-56 flex flex-col gap-1 z-30 pointer-events-auto">
+                    <button onclick="GameEngine.sendPhrase(0)" class="w-full text-right p-1.5 text-white text-[11px] rounded hover:bg-white/10">"دەی خێراکە براڕۆ، سەعات بوو!"</button>
+                    <button onclick="GameEngine.sendPhrase(1)" class="w-full text-right p-1.5 text-white text-[11px] rounded hover:bg-white/10">"دەستت قوفڵ بووە بە دیاریا؟ 🤫"</button>
                 </div>
-
-                <!-- Sorting Utilities Box -->
                 <div id="sorting-controls" class="flex gap-2 pointer-events-auto hidden">
-                    <button onclick="GameEngine.sortHand('color')" class="glass-panel px-4 py-2 text-xs font-bold text-white rounded-lg border-blue-500/30 hover:bg-blue-600/20 cursor-pointer">ڕێکخستن بەپێی ڕەنگ</button>
-                    <button onclick="GameEngine.sortHand('set')" class="glass-panel px-4 py-2 text-xs font-bold text-white rounded-lg border-yellow-500/30 hover:bg-yellow-600/20 cursor-pointer">ڕێکخستن بەپێی کۆمەڵە</button>
+                    <button onclick="GameEngine.sortHand('color')" class="glass-panel px-3 py-1.5 text-[11px] text-white rounded-lg">ڕێکخستن بەپێی ڕەنگ</button>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- Script Entry Execution Initialization -->
     <script src="game.js"></script>
 </body>
 </html>
